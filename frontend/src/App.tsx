@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
+import { Map as LeafletMap } from 'leaflet'
 
 type City = {
   name: string
@@ -24,6 +25,7 @@ export default function App() {
   const [comparisonCities, setComparisonCities] = useState<City[]>([])
   const [cityInput, setCityInput] = useState('')
   const [selectedPoint, setSelectedPoint] = useState<any>(null)
+  const mapRef = useRef<LeafletMap | null>(null)
 
   async function searchCity() {
     if (!cityInput) return
@@ -51,6 +53,13 @@ export default function App() {
 
     const aqi = data.current.us_aqi
     const color = getAQIColor(aqi)
+
+    // Smoothly fly to the found city and zoom in
+    try {
+      mapRef.current?.flyTo([lat, lon], 10, { duration: 1.2 })
+    } catch (e) {
+      // ignore if map not ready
+    }
 
     setSelectedPoint({
       lat,
@@ -109,9 +118,19 @@ export default function App() {
           <button onClick={searchCity}>Search</button>
         </div>
 
-        <MapContainer center={[20, 0]} zoom={2} style={{ height: "100%", width: "100%" }}>
+        <MapContainer
+          center={[20, 0]}
+          zoom={2}
+          minZoom={2}
+          maxBounds={[[-85, -180], [85, 180]]}
+          maxBoundsViscosity={1.0}
+          worldCopyJump={true}
+          whenCreated={(m) => (mapRef.current = m)}
+          style={{ height: "100%", width: "100%" }}
+        >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            noWrap={true}
           />
 
           {selectedPoint && (

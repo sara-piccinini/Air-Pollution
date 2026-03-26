@@ -5,7 +5,7 @@
 
 .sidebar {
   width: 250px;
-  background: white;
+  background: transparent;
   padding: 15px;
   overflow: auto;
 }
