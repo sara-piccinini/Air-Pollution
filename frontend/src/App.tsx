@@ -1,8 +1,7 @@
-import { useState, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { useState, FormEvent, useEffect } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
-import { Map as LeafletMap } from 'leaflet'
 
 type City = {
   name: string
@@ -10,6 +9,8 @@ type City = {
   pm25: number
   pm10: number
   color: string
+  lat: number
+  lon: number
 }
 
 function getAQIColor(aqi: number) {
@@ -21,27 +22,39 @@ function getAQIColor(aqi: number) {
   return "#7e0023"
 }
 
+function FlyToCity({ point }: { point: City | null }) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (point) {
+      map.flyTo([point.lat, point.lon], 11, {
+        duration: 1.5,
+      })
+    }
+  }, [point, map])
+
+  return null
+}
+
 export default function App() {
   const [comparisonCities, setComparisonCities] = useState<City[]>([])
   const [cityInput, setCityInput] = useState('')
-  const [selectedPoint, setSelectedPoint] = useState<any>(null)
-  const mapRef = useRef<LeafletMap | null>(null)
+  const [selectedPoint, setSelectedPoint] = useState<City | null>(null)
 
   async function searchCity() {
-    if (!cityInput) return
+    if (!cityInput.trim()) return
 
     const geoRes = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${cityInput}&count=1`
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityInput)}&count=1`
     )
     const geoData = await geoRes.json()
 
-    if (!geoData.results) {
+    if (!geoData.results || geoData.results.length === 0) {
       alert("City not found")
       return
     }
 
     const city = geoData.results[0]
-
     fetchAirQuality(city.latitude, city.longitude, city.name)
   }
 
@@ -53,13 +66,6 @@ export default function App() {
 
     const aqi = data.current.us_aqi
     const color = getAQIColor(aqi)
-
-    // Smoothly fly to the found city and zoom in
-    try {
-      mapRef.current?.flyTo([lat, lon], 10, { duration: 1.2 })
-    } catch (e) {
-      // ignore if map not ready
-    }
 
     setSelectedPoint({
       lat,
@@ -74,7 +80,10 @@ export default function App() {
 
   function addToCompare() {
     if (!selectedPoint) return
-    if (comparisonCities.length >= 5) return alert("Max 5 cities")
+    if (comparisonCities.length >= 5) {
+      alert("Max 5 cities")
+      return
+    }
 
     setComparisonCities([...comparisonCities, selectedPoint])
   }
@@ -87,14 +96,10 @@ export default function App() {
 
   return (
     <div className="container">
-
-      {/* LEFT SIDEBAR */}
       <div className="sidebar">
         <h2>Compare</h2>
 
-        {comparisonCities.length === 0 && (
-          <p>No cities added</p>
-        )}
+        {comparisonCities.length === 0 && <p>No cities added</p>}
 
         {comparisonCities.map((c, i) => (
           <div key={i} className="card" style={{ borderLeft: `5px solid ${c.color}` }}>
@@ -106,17 +111,21 @@ export default function App() {
         ))}
       </div>
 
-      {/* MAP */}
       <div className="map-area">
-
-        <div className="search">
+        <form
+          className="search"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault()
+            searchCity()
+          }}
+        >
           <input
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
             placeholder="Enter city..."
           />
-          <button onClick={searchCity}>Search</button>
-        </div>
+          <button type="submit">Search</button>
+        </form>
 
         <MapContainer
           center={[20, 0]}
@@ -125,7 +134,6 @@ export default function App() {
           maxBounds={[[-85, -180], [85, 180]]}
           maxBoundsViscosity={1.0}
           worldCopyJump={true}
-          whenCreated={(m) => (mapRef.current = m)}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
@@ -133,11 +141,15 @@ export default function App() {
             noWrap={true}
           />
 
+          <FlyToCity point={selectedPoint} />
+
           {selectedPoint && (
             <Marker position={[selectedPoint.lat, selectedPoint.lon]}>
-              <Popup>
+              <Popup autoOpen={true}>
                 <b>{selectedPoint.name}</b><br />
-                AQI: {selectedPoint.aqi}<br /><br />
+                AQI: {selectedPoint.aqi}<br />
+                PM2.5: {selectedPoint.pm25}<br />
+                PM10: {selectedPoint.pm10}<br /><br />
                 <button onClick={addToCompare}>
                   Add to Compare
                 </button>
@@ -147,14 +159,12 @@ export default function App() {
         </MapContainer>
       </div>
 
-      {/* RIGHT SIDEBAR */}
       <div className="sidebar">
         <h3>AQI Legend</h3>
         <p>0-50 Good</p>
         <p>51-100 Moderate</p>
         <p>101-150 Unhealthy</p>
       </div>
-
     </div>
   )
 }
