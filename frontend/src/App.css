@@ -4,7 +4,7 @@
 }
 
 .sidebar {
-  width: 250px;
+  width: 300px;
   background: transparent;
   padding: 15px;
   overflow: auto;
@@ -46,4 +46,75 @@
   margin: 10px 0;
   padding: 10px;
   border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.card.expanded {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.expand-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.expand-btn:hover {
+  background: #0056b3;
+}
+
+.remove-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.remove-btn:hover {
+  background: #c82333;
+}
+
+.card-expanded {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.chart-container {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
 }

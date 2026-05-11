@@ -1,5 +1,7 @@
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { type FormEvent } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
 
@@ -13,6 +15,11 @@ type City = {
   lon: number
 }
 
+type ChartData = {
+  name: string
+  value: number
+}
+
 function getAQIColor(aqi: number) {
   if (aqi <= 50) return "#00e400"
   if (aqi <= 100) return "#d4d400"
@@ -20,6 +27,14 @@ function getAQIColor(aqi: number) {
   if (aqi <= 200) return "#ff0000"
   if (aqi <= 300) return "#8f3f97"
   return "#7e0023"
+}
+
+function SetView({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap()
+  useEffect(() => {
+    map.setView(center, zoom)
+  }, [map, center, zoom])
+  return null
 }
 
 function FlyToCity({ point }: { point: City | null }) {
@@ -36,8 +51,58 @@ function FlyToCity({ point }: { point: City | null }) {
   return null
 }
 
+type ExpandableCardProps = {
+  city: City
+  index: number
+  isExpanded: boolean
+  chartData: ChartData[] | null
+  onToggleExpand: (index: number) => void
+  onRemove: (index: number) => void
+}
+
+function ExpandableCard({ city, index, isExpanded, chartData, onToggleExpand, onRemove }: ExpandableCardProps) {
+  return (
+    <div className={`card ${isExpanded ? 'expanded' : ''}`} style={{ borderLeft: `5px solid ${city.color}` }}>
+      <div className="card-header">
+        <div>
+          <b>{city.name}</b><br />
+          AQI: {city.aqi}<br />
+          PM2.5: {city.pm25} | PM10: {city.pm10}
+        </div>
+        <div className="card-buttons">
+          <button className="expand-btn" onClick={() => onToggleExpand(index)} title="Expand">
+            {isExpanded ? '▼' : '▶'}
+          </button>
+          <button className="remove-btn" onClick={() => onRemove(index)}>x</button>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="card-expanded">
+          <div className="chart-container">
+            {chartData && chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value} />
+                  <Bar dataKey="value" fill="#8884d8" name="Concentración (μg/m³)" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>Cargando datos...</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const [comparisonCities, setComparisonCities] = useState<City[]>([])
+  const [expandedCards, setExpandedCards] = useState<{ [key: number]: ChartData[] | null }>({})
   const [cityInput, setCityInput] = useState('')
   const [selectedPoint, setSelectedPoint] = useState<City | null>(null)
 
@@ -78,6 +143,19 @@ export default function App() {
     })
   }
 
+  async function fetchChartData(city: City): Promise<ChartData[]> {
+    return [
+      {
+        name: 'PM2.5',
+        value: Math.round(city.pm25 * 100) / 100
+      },
+      {
+        name: 'PM10',
+        value: Math.round(city.pm10 * 100) / 100
+      }
+    ]
+  }
+
   function addToCompare() {
     if (!selectedPoint) return
     if (comparisonCities.length >= 5) {
@@ -92,6 +170,25 @@ export default function App() {
     const newCities = [...comparisonCities]
     newCities.splice(index, 1)
     setComparisonCities(newCities)
+    
+    // Clean up expanded data
+    const newExpanded = { ...expandedCards }
+    delete newExpanded[index]
+    setExpandedCards(newExpanded)
+  }
+
+  async function toggleExpandCard(index: number) {
+    if (expandedCards[index] !== undefined) {
+      // Collapse
+      const newExpanded = { ...expandedCards }
+      delete newExpanded[index]
+      setExpandedCards(newExpanded)
+    } else {
+      // Expand and fetch data
+      const city = comparisonCities[index]
+      const chartData = await fetchChartData(city)
+      setExpandedCards(prev => ({ ...prev, [index]: chartData }))
+    }
   }
 
   return (
@@ -102,12 +199,15 @@ export default function App() {
         {comparisonCities.length === 0 && <p>No cities added</p>}
 
         {comparisonCities.map((c, i) => (
-          <div key={i} className="card" style={{ borderLeft: `5px solid ${c.color}` }}>
-            <button onClick={() => removeCity(i)}>x</button>
-            <b>{c.name}</b><br />
-            AQI: {c.aqi}<br />
-            PM2.5: {c.pm25} | PM10: {c.pm10}
-          </div>
+          <ExpandableCard
+            key={i}
+            city={c}
+            index={i}
+            isExpanded={expandedCards[i] !== undefined}
+            chartData={expandedCards[i] || null}
+            onToggleExpand={toggleExpandCard}
+            onRemove={removeCity}
+          />
         ))}
       </div>
 
@@ -128,24 +228,18 @@ export default function App() {
         </form>
 
         <MapContainer
-          center={[20, 0]}
-          zoom={2}
-          minZoom={2}
-          maxBounds={[[-85, -180], [85, 180]]}
-          maxBoundsViscosity={1.0}
-          worldCopyJump={true}
           style={{ height: "100%", width: "100%" }}
         >
+          <SetView center={[20, 0]} zoom={2} />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            noWrap={true}
           />
 
           <FlyToCity point={selectedPoint} />
 
           {selectedPoint && (
             <Marker position={[selectedPoint.lat, selectedPoint.lon]}>
-              <Popup autoOpen={true}>
+              <Popup>
                 <b>{selectedPoint.name}</b><br />
                 AQI: {selectedPoint.aqi}<br />
                 PM2.5: {selectedPoint.pm25}<br />
