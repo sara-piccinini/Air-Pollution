@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <filter id="blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+    </filter>
+    <radialGradient id="particleGrad" cx="30%" cy="30%">
+      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+      <stop offset="100%" stopColor="#e0e0e0" stopOpacity="0.3" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Fondo base gris -->
+  <rect width="1920" height="1080" fill="#9e9e9e" />
+  
+  <!-- Partículas grandes de polución/humo -->
+  <circle cx="300" cy="200" r="150" fill="#c0c0c0" opacity="0.7" filter="url(#blur)" />
+  <circle cx="600" cy="300" r="180" fill="#d0d0d0" opacity="0.6" filter="url(#blur)" />
+  <circle cx="950" cy="150" r="200" fill="#c8c8c8" opacity="0.65" filter="url(#blur)" />
+  <circle cx="1300" cy="280" r="160" fill="#d8d8d8" opacity="0.55" filter="url(#blur)" />
+  <circle cx="1650" cy="100" r="190" fill="#c0c0c0" opacity="0.7" filter="url(#blur)" />
+  
+  <!-- Partículas medianas -->
+  <circle cx="400" cy="500" r="120" fill="#d0d0d0" opacity="0.6" filter="url(#blur)" />
+  <circle cx="800" cy="650" r="140" fill="#c8c8c8" opacity="0.65" filter="url(#blur)" />
+  <circle cx="1200" cy="550" r="100" fill="#d8d8d8" opacity="0.55" filter="url(#blur)" />
+  <circle cx="1600" cy="700" r="130" fill="#c0c0c0" opacity="0.7" filter="url(#blur)" />
+  
+  <!-- Partículas pequeñas dispersas -->
+  <circle cx="200" cy="400" r="70" fill="#e0e0e0" opacity="0.5" filter="url(#blur)" />
+  <circle cx="500" cy="800" r="60" fill="#d0d0d0" opacity="0.55" filter="url(#blur)" />
+  <circle cx="900" cy="900" r="80" fill="#c8c8c8" opacity="0.6" filter="url(#blur)" />
+  <circle cx="1100" cy="300" r="50" fill="#d8d8d8" opacity="0.5" filter="url(#blur)" />
+  <circle cx="1400" cy="850" r="75" fill="#e0e0e0" opacity="0.55" filter="url(#blur)" />
+  <circle cx="1750" cy="400" r="90" fill="#c0c0c0" opacity="0.65" filter="url(#blur)" />
+  
+  <!-- Detalles de estructura fractal -->
+  <g opacity="0.3">
+    <circle cx="350" cy="250" r="40" fill="#ffffff" />
+    <circle cx="370" cy="230" r="25" fill="#ffffff" />
+    <circle cx="320" cy="270" r="30" fill="#ffffff" />
+    <circle cx="650" cy="350" r="45" fill="#ffffff" />
+    <circle cx="670" cy="330" r="28" fill="#ffffff" />
+    <circle cx="980" cy="200" r="50" fill="#ffffff" />
+    <circle cx="1010" cy="220" r="30" fill="#ffffff" />
+    <circle cx="1350" cy="320" r="40" fill="#ffffff" />
+    <circle cx="1700" cy="150" r="48" fill="#ffffff" />
+  </g>
+</svg>

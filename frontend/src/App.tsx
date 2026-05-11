@@ -263,10 +263,13 @@ export default function App() {
 
             <MapContainer
               style={{ height: "100%", width: "100%" }}
+              maxBounds={[[-90, -180], [90, 180]]}
+              maxBoundsViscosity={1.0}
             >
               <SetView center={[20, 0]} zoom={2} />
               <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                attribution="&copy; Esri"
               />
 
               <MapClickHandler onDoubleClick={handleMapDoubleClick} />
