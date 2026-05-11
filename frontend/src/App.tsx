@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { type FormEvent } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent } from 'react-leaflet'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
@@ -48,6 +48,14 @@ function FlyToCity({ point }: { point: City | null }) {
     }
   }, [point, map])
 
+  return null
+}
+
+function MapClickHandler({ onDoubleClick }: { onDoubleClick: (lat: number, lon: number) => void }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useMapEvent('dblclick', (e: any) => {
+    onDoubleClick(e.latlng.lat, e.latlng.lng)
+  })
   return null
 }
 
@@ -143,6 +151,26 @@ export default function App() {
     })
   }
 
+  function handleMapDoubleClick(lat: number, lon: number) {
+    // Use reverse geocoding to get the location name
+    fetchReverseGeocoding(lat, lon)
+  }
+
+  async function fetchReverseGeocoding(lat: number, lon: number) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+      )
+      const data = await res.json()
+      const name = data.address?.city || data.address?.town || data.address?.village || `Location (${lat.toFixed(2)}, ${lon.toFixed(2)})`
+      
+      fetchAirQuality(lat, lon, name)
+    } catch {
+      // Fallback if geocoding fails
+      fetchAirQuality(lat, lon, `Location (${lat.toFixed(2)}, ${lon.toFixed(2)})`)
+    }
+  }
+
   async function fetchChartData(city: City): Promise<ChartData[]> {
     return [
       {
@@ -235,6 +263,7 @@ export default function App() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
+          <MapClickHandler onDoubleClick={handleMapDoubleClick} />
           <FlyToCity point={selectedPoint} />
 
           {selectedPoint && (
