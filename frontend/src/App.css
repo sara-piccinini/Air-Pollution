@@ -118,3 +118,86 @@
   border-radius: 8px;
   margin-top: 10px;
 }
+
+/* Landing Page Styles */
+.landing-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Arial', sans-serif;
+}
+
+.landing-content {
+  text-align: center;
+  color: white;
+}
+
+.landing-title {
+  font-size: 3.5rem;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: titleFadeIn 1s ease-out;
+  letter-spacing: 2px;
+}
+
+@keyframes titleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.planet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  cursor: pointer;
+}
+
+.planet {
+  width: 250px;
+  height: 250px;
+  animation: rotatePlanet 20s linear infinite;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.planet:hover {
+  transform: scale(1.1);
+  animation-duration: 15s;
+}
+
+@keyframes rotatePlanet {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.click-hint {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  animation: pulse 2s infinite;
+  cursor: pointer;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}

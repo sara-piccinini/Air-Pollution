@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { type FormEvent } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent } from 'react-leaflet'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import LandingPage from './LandingPage'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
 
@@ -109,6 +110,7 @@ function ExpandableCard({ city, index, isExpanded, chartData, onToggleExpand, on
 }
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(true)
   const [comparisonCities, setComparisonCities] = useState<City[]>([])
   const [expandedCards, setExpandedCards] = useState<{ [key: number]: ChartData[] | null }>({})
   const [cityInput, setCityInput] = useState('')
@@ -220,51 +222,55 @@ export default function App() {
   }
 
   return (
-    <div className="container">
-      <div className="sidebar">
-        <h2>Compare</h2>
+    <>
+      {showLanding ? (
+        <LandingPage onEnter={() => setShowLanding(false)} />
+      ) : (
+        <div className="container">
+          <div className="sidebar">
+            <h2>Compare</h2>
 
-        {comparisonCities.length === 0 && <p>No cities added</p>}
+            {comparisonCities.length === 0 && <p>No cities added</p>}
 
-        {comparisonCities.map((c, i) => (
-          <ExpandableCard
-            key={i}
-            city={c}
-            index={i}
-            isExpanded={expandedCards[i] !== undefined}
-            chartData={expandedCards[i] || null}
-            onToggleExpand={toggleExpandCard}
-            onRemove={removeCity}
-          />
-        ))}
-      </div>
+            {comparisonCities.map((c, i) => (
+              <ExpandableCard
+                key={i}
+                city={c}
+                index={i}
+                isExpanded={expandedCards[i] !== undefined}
+                chartData={expandedCards[i] || null}
+                onToggleExpand={toggleExpandCard}
+                onRemove={removeCity}
+              />
+            ))}
+          </div>
 
-      <div className="map-area">
-        <form
-          className="search"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault()
-            searchCity()
-          }}
-        >
-          <input
-            value={cityInput}
-            onChange={(e) => setCityInput(e.target.value)}
-            placeholder="Enter city..."
-          />
-          <button type="submit">Search</button>
-        </form>
+          <div className="map-area">
+            <form
+              className="search"
+              onSubmit={(e: FormEvent) => {
+                e.preventDefault()
+                searchCity()
+              }}
+            >
+              <input
+                value={cityInput}
+                onChange={(e) => setCityInput(e.target.value)}
+                placeholder="Enter city..."
+              />
+              <button type="submit">Search</button>
+            </form>
 
-        <MapContainer
-          style={{ height: "100%", width: "100%" }}
-        >
-          <SetView center={[20, 0]} zoom={2} />
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+            <MapContainer
+              style={{ height: "100%", width: "100%" }}
+            >
+              <SetView center={[20, 0]} zoom={2} />
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
 
-          <MapClickHandler onDoubleClick={handleMapDoubleClick} />
-          <FlyToCity point={selectedPoint} />
+              <MapClickHandler onDoubleClick={handleMapDoubleClick} />
+              <FlyToCity point={selectedPoint} />
 
           {selectedPoint && (
             <Marker position={[selectedPoint.lat, selectedPoint.lon]}>
@@ -288,6 +294,8 @@ export default function App() {
         <p>51-100 Moderate</p>
         <p>101-150 Unhealthy</p>
       </div>
-    </div>
+        </div>
+      )}
+    </>
   )
 }
