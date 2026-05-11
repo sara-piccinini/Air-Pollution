@@ -112,6 +112,7 @@ function ExpandableCard({ city, index, isExpanded, chartData, onToggleExpand, on
 export default function App() {
   const [showLanding, setShowLanding] = useState(true)
   const [comparisonCities, setComparisonCities] = useState<City[]>([])
+  const [compareOpen, setCompareOpen] = useState(true)
   const [expandedCards, setExpandedCards] = useState<{ [key: number]: ChartData[] | null }>({})
   const [cityInput, setCityInput] = useState('')
   const [selectedPoint, setSelectedPoint] = useState<City | null>(null)
@@ -227,22 +228,32 @@ export default function App() {
         <LandingPage onEnter={() => setShowLanding(false)} />
       ) : (
         <div className="container">
-          <div className="sidebar">
-            <h2>Compare</h2>
+          <div className={`sidebar compare-sidebar ${compareOpen ? 'open' : 'collapsed'}`}>
+            <button
+              className="sidebar-toggle"
+              onClick={() => setCompareOpen(o => !o)}
+              aria-label={compareOpen ? 'Close compare' : 'Open compare'}
+            >
+              {compareOpen ? '‹' : '›'}
+            </button>
 
-            {comparisonCities.length === 0 && <p>No cities added</p>}
+            <div className="sidebar-content">
+              <h2>Compare</h2>
 
-            {comparisonCities.map((c, i) => (
-              <ExpandableCard
-                key={i}
-                city={c}
-                index={i}
-                isExpanded={expandedCards[i] !== undefined}
-                chartData={expandedCards[i] || null}
-                onToggleExpand={toggleExpandCard}
-                onRemove={removeCity}
-              />
-            ))}
+              {comparisonCities.length === 0 && <p>No cities added</p>}
+
+              {comparisonCities.map((c, i) => (
+                <ExpandableCard
+                  key={i}
+                  city={c}
+                  index={i}
+                  isExpanded={expandedCards[i] !== undefined}
+                  chartData={expandedCards[i] || null}
+                  onToggleExpand={toggleExpandCard}
+                  onRemove={removeCity}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="map-area">

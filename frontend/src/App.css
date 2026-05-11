@@ -10,6 +10,43 @@
   overflow: auto;
 }
 
+/* Collapsible compare sidebar */
+.compare-sidebar {
+  position: relative;
+  width: 300px;
+  transition: width 200ms ease;
+}
+
+.compare-sidebar.collapsed {
+  width: 44px;
+  overflow: visible;
+}
+
+.compare-sidebar .sidebar-toggle {
+  position: absolute;
+  top: 12px;
+  right: -18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+}
+
+.compare-sidebar .sidebar-content {
+  padding-right: 10px;
+}
+
+.compare-sidebar.collapsed .sidebar-content > * {
+  display: none;
+}
+
 .map-area {
   flex: 1;
   position: relative;
