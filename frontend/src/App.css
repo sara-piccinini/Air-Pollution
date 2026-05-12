@@ -14,37 +14,40 @@
 .compare-sidebar {
   position: relative;
   width: 300px;
-  transition: width 200ms ease;
-}
-
-.compare-sidebar.collapsed {
-  width: 44px;
-  overflow: visible;
-}
-
-.compare-sidebar .sidebar-toggle {
-  position: absolute;
-  top: 12px;
-  right: -18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
-  border: none;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 4;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .compare-sidebar .sidebar-content {
-  padding-right: 10px;
+  padding: 10px 10px 10px 15px;
+  overflow-y: auto;
+  flex: 1;
+  direction: rtl;
 }
 
-.compare-sidebar.collapsed .sidebar-content > * {
-  display: none;
+.compare-sidebar .sidebar-content > * {
+  direction: ltr;
+}
+
+/* AQI Legend sidebar */
+.aqi-sidebar {
+  position: relative;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+  padding: 15px;
+  border-left: 1px solid #ddd;
+}
+
+.aqi-sidebar .sidebar-content {
+  padding: 10px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .map-area {

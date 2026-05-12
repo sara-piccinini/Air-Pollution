@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { type FormEvent } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent } from 'react-leaflet'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts'
 import LandingPage from './LandingPage'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
@@ -95,8 +95,7 @@ function ExpandableCard({ city, index, isExpanded, chartData, onToggleExpand, on
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value} />
-                  <Bar dataKey="value" fill="#8884d8" name="Concentración (μg/m³)" />
+                  <Bar dataKey="value" fill="#8884d8" name="Concentration (μg/m³)" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -112,7 +111,6 @@ function ExpandableCard({ city, index, isExpanded, chartData, onToggleExpand, on
 export default function App() {
   const [showLanding, setShowLanding] = useState(true)
   const [comparisonCities, setComparisonCities] = useState<City[]>([])
-  const [compareOpen, setCompareOpen] = useState(true)
   const [expandedCards, setExpandedCards] = useState<{ [key: number]: ChartData[] | null }>({})
   const [cityInput, setCityInput] = useState('')
   const [selectedPoint, setSelectedPoint] = useState<City | null>(null)
@@ -228,15 +226,7 @@ export default function App() {
         <LandingPage onEnter={() => setShowLanding(false)} />
       ) : (
         <div className="container">
-          <div className={`sidebar compare-sidebar ${compareOpen ? 'open' : 'collapsed'}`}>
-            <button
-              className="sidebar-toggle"
-              onClick={() => setCompareOpen(o => !o)}
-              aria-label={compareOpen ? 'Close compare' : 'Open compare'}
-            >
-              {compareOpen ? '‹' : '›'}
-            </button>
-
+          <div className="sidebar compare-sidebar">
             <div className="sidebar-content">
               <h2>Compare</h2>
 
@@ -276,6 +266,8 @@ export default function App() {
               style={{ height: "100%", width: "100%" }}
               maxBounds={[[-90, -180], [90, 180]]}
               maxBoundsViscosity={1.0}
+              minZoom={2}
+              maxZoom={18}
             >
               <SetView center={[20, 0]} zoom={2} />
               <TileLayer
@@ -302,11 +294,13 @@ export default function App() {
         </MapContainer>
       </div>
 
-      <div className="sidebar">
-        <h3>AQI Legend</h3>
-        <p>0-50 Good</p>
-        <p>51-100 Moderate</p>
-        <p>101-150 Unhealthy</p>
+      <div className="sidebar aqi-sidebar">
+        <div className="sidebar-content">
+          <h3>AQI Legend</h3>
+          <p>0-50 Good</p>
+          <p>51-100 Moderate</p>
+          <p>101-150 Unhealthy</p>
+        </div>
       </div>
         </div>
       )}
