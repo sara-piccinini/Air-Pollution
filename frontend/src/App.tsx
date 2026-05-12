@@ -114,6 +114,7 @@ export default function App() {
   const [expandedCards, setExpandedCards] = useState<{ [key: number]: ChartData[] | null }>({})
   const [cityInput, setCityInput] = useState('')
   const [selectedPoint, setSelectedPoint] = useState<City | null>(null)
+  const [showHint, setShowHint] = useState(true)
 
   async function searchCity() {
     if (!cityInput.trim()) return
@@ -141,6 +142,7 @@ export default function App() {
     const aqi = data.current.us_aqi
     const color = getAQIColor(aqi)
 
+    setShowHint(false)
     setSelectedPoint({
       lat,
       lon,
@@ -261,6 +263,12 @@ export default function App() {
               />
               <button type="submit">Search</button>
             </form>
+
+            {showHint && (
+              <div className="hint-message">
+                Search for a city or double click on the map to get Air Quality
+              </div>
+            )}
 
             <MapContainer
               style={{ height: "100%", width: "100%" }}
